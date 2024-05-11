@@ -19,7 +19,8 @@ vim.opt.number = true
 vim.opt.relativenumber = true
 
 -- Tab length
-vim.opt.shiftwidth = 2
+vim.opt.shiftwidth = 4
+vim.opt.tabstop = 4
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.opt.mouse = 'a'
@@ -78,6 +79,15 @@ vim.g.loaded_netrwPlugin = 1
 
 -- optionally enable 24-bit colour
 vim.opt.termguicolors = true
+
+-- Place a column line
+vim.opt.colorcolumn = '80'
+
+-- Always show the sign column
+vim.opt.signcolumn = 'yes'
+
+--Always keep 8 lines above/below cursor, but star/end of file
+vim.opt.scrolloff = 15
 
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
