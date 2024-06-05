@@ -43,9 +43,6 @@ vim.opt.undofile = true
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
 
--- Keep signcolumn on by default
-vim.opt.signcolumn = 'yes'
-
 -- Decrease update time
 vim.opt.updatetime = 250
 
@@ -89,11 +86,26 @@ vim.opt.signcolumn = 'yes'
 --Always keep 8 lines above/below cursor, but star/end of file
 vim.opt.scrolloff = 15
 
+vim.opt.cole = 1
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
 -- MINE custom keymaps
 vim.keymap.set('n', '<Enter>', 'i')
+vim.keymap.set('n', '<M-Down>', '<C-w>-')
+vim.keymap.set('n', '<M-Up>', '<C-w>+')
+vim.keymap.set('n', '<M-Right>', '<C-w>5<')
+vim.keymap.set('n', '<M-Left>', '<C-w>5>')
+-- Open help window in a vertical split to the right.
+vim.api.nvim_create_autocmd('BufWinEnter', {
+  group = vim.api.nvim_create_augroup('help_window_right', {}),
+  pattern = { '*.txt' },
+  callback = function()
+    if vim.o.filetype == 'help' then
+      vim.cmd.wincmd 'L'
+    end
+  end,
+})
 
 -- Set highlight on search, but clear on pressing <Esc> in normal mode
 vim.opt.hlsearch = true
@@ -123,10 +135,10 @@ vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' }
 --  Use CTRL+<hjkl> to switch between windows
 --
 --  See `:help wincmd` for a list of all window commands
-vim.keymap.set('n', '<C-t>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
--- vim.keymap.set('n', '<C-e>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
-vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
-vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
+vim.keymap.set('n', '<C-Left>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
+vim.keymap.set('n', '<C-Right>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
+vim.keymap.set('n', '<C-Down>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
+vim.keymap.set('n', '<C-Up>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
@@ -175,26 +187,27 @@ require('lazy').setup({
   --  This is equivalent to:
   --    require('Comment').setup({})
 
-  -- "gc" to comment visual regions/lines
+  -- CUSTOM PLUGINS
   { 'numToStr/Comment.nvim', opts = {} },
+  { 'laytan/cloak.nvim', opts = {} },
 
   -- Here is a more advanced example where we pass configuration
   -- options to `gitsigns.nvim`. This is equivalent to the following Lua:
   --    require('gitsigns').setup({ ... })
   --
   -- See `:help gitsigns` to understand what the configuration keys do
-  { -- Adds git related signs to the gutter, as well as utilities for managing changes
-    'lewis6991/gitsigns.nvim',
-    opts = {
-      signs = {
-        add = { text = '+' },
-        change = { text = '~' },
-        delete = { text = '_' },
-        topdelete = { text = '‾' },
-        changedelete = { text = '~' },
-      },
-    },
-  },
+  -- { -- Adds git related signs to the gutter, as well as utilities for managing changes
+  --   'lewis6991/gitsigns.nvim',
+  --   opts = {
+  --     signs = {
+  --       add = { text = ' ' },
+  --       change = { text = ' ' },
+  --       delete = { text = ' ' },
+  --       topdelete = { text = ' ' },
+  --       changedelete = { text = '󰚃 ' },
+  --     },
+  --   },
+  -- },
 
   -- NOTE: Plugins can also be configured to run Lua code when they are loaded.
   --
@@ -214,7 +227,7 @@ require('lazy').setup({
   { -- Useful plugin to show you pending keybinds.
     'folke/which-key.nvim',
     event = 'VimEnter', -- Sets the loading event to 'VimEnter'
-    config = function() -- This is the function that runs, AFTER loading
+    config = function() -- This is the func that runs, AFTER loading
       require('which-key').setup()
 
       -- Document existing key chains
@@ -592,7 +605,7 @@ require('lazy').setup({
       formatters_by_ft = {
         lua = { 'stylua' },
         -- Conform can also run multiple formatters sequentially
-        -- python = { "isort", "black" },
+        python = { 'ruff' },
         --
         -- You can use a sub-list to tell conform to run *until* a formatter
         -- is found.
@@ -621,12 +634,12 @@ require('lazy').setup({
           -- `friendly-snippets` contains a variety of premade snippets.
           --    See the README about individual language/framework/plugin snippets:
           --    https://github.com/rafamadriz/friendly-snippets
-          -- {
-          --   'rafamadriz/friendly-snippets',
-          --   config = function()
-          --     require('luasnip.loaders.from_vscode').lazy_load()
-          --   end,
-          -- },
+          {
+            'rafamadriz/friendly-snippets',
+            config = function()
+              require('luasnip.loaders.from_vscode').lazy_load()
+            end,
+          },
         },
       },
       'saadparwaiz1/cmp_luasnip',
@@ -717,6 +730,9 @@ require('lazy').setup({
   { 'Mofiqul/adwaita.nvim' },
   { 'Mofiqul/vscode.nvim' },
   { 'folke/tokyonight.nvim' },
+  { 'catppuccin/nvim' },
+  { 'EdenEast/nightfox.nvim' },
+  { 'martinsione/darkplus.nvim' },
 
   { -- You can easily change to a different colorscheme.
     -- Change the name of the colorscheme plugin below, and then
@@ -737,43 +753,78 @@ require('lazy').setup({
   },
 
   -- Highlight todo, notes, etc in comments
-  { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
+  {
+    'folke/todo-comments.nvim',
+    event = 'VimEnter',
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    opts = {
+      signs = true,
+      keywords = {
+        FIX = {
+          icon = ' ', -- icon used for the sign, and in search results
+          color = 'error', -- can be a hex color, or a named color (see below)
+          alt = { 'FIXME', 'BUG', 'FIXIT', 'ISSUE' }, -- a set of other keywords that all map to this FIX keywords
+          -- signs = false, -- configure signs for some keywords individually
+        },
+        TODO = { icon = ' ', color = 'info' },
+        HACK = { icon = ' ', color = 'warning' },
+        WARN = { icon = ' ', color = 'warning', alt = { 'WARNING', 'XXX' } },
+        PERF = { icon = '󱎫 ', color = 'test', alt = { 'OPTIM', 'PERFORMANCE', 'OPTIMIZE' } },
+        NOTE = { icon = ' ', color = 'hint', alt = { 'INFO' } },
+        TEST = { icon = '󰙨 ', color = 'test', alt = { 'TESTING', 'PASSED', 'FAILED' } },
+      },
+      -- FIX:
+      -- TODO:
+      -- HACK:
+      -- WARN:
+      -- PERF:
+      -- TEST:
+      colors = {
+        error = { 'DiagnosticError', 'ErrorMsg', 'FF4646' },
+        warning = { 'DiagnosticWarn', 'WarningMsg', '#FF5F00' },
+        info = { 'DiagnosticInfo', '#D2E603' },
+        hint = { 'DiagnosticHint', '#28DF99' },
+        default = { 'Identifier', '#7C3AED' },
+        test = { 'Identifier', '#FFEA20' },
+      },
+    },
+  },
 
   { -- Collection of various small independent plugins/modules
     'echasnovski/mini.nvim',
     config = function()
-      -- Better Around/Inside textobjects
-      --
-      -- Examples:
-      --  - va)  - [V]isually select [A]round [)]paren
-      --  - yinq - [Y]ank [I]nside [N]ext [']quote
-      --  - ci'  - [C]hange [I]nside [']quote
+      --     -- Better Around/Inside textobjects
+      --     --
+      --     -- Examples:
+      --     --  - va)  - [V]isually select [A]round [)]paren
+      --     --  - yinq - [Y]ank [I]nside [N]ext [']quote
+      --     --  - ci'  - [C]hange [I]nside [']quote
       require('mini.ai').setup { n_lines = 500 }
-
-      -- Add/delete/replace surroundings (brackets, quotes, etc.)
       --
-      -- - saiw) - [S]urround [A]dd [I]nner [W]ord [)]Paren
-      -- - sd'   - [S]urround [D]elete [']quotes
-      -- - sr)'  - [S]urround [R]eplace [)] [']
+      --     -- Add/delete/replace surroundings (brackets, quotes, etc.)
+      --     --
+      --     -- - saiw) - [S]urround [A]dd [I]nner [W]ord [)]Paren
+      --     -- - sd'   - [S]urround [D]elete [']quotes
+      --     -- - sr)'  - [S]urround [R]eplace [)] [']
       require('mini.surround').setup()
-
-      -- Simple and easy statusline.
-      --  You could remove this setup call if you don't like it,
-      --  and try some other statusline plugin
-      local statusline = require 'mini.statusline'
-      -- set use_icons to true if you have a Nerd Font
-      statusline.setup { use_icons = vim.g.have_nerd_font }
-
-      -- You can configure sections in the statusline by overriding their
-      -- default behavior. For example, here we set the section for
-      -- cursor location to LINE:COLUMN
-      ---@diagnostic disable-next-line: duplicate-set-field
-      statusline.section_location = function()
-        return '%2l:%-2v'
-      end
-
-      -- ... and there is more!
-      --  Check out: https://github.com/echasnovski/mini.nvim
+      --
+      --     -- Simple and easy statusline.
+      --     --  You could remove this setup call if you don't like it,
+      --     --  and try some other statusline plugin
+      --     -- local statusline = require 'mini.statusline'
+      --     -- set use_icons to true if you have a Nerd Font
+      --     -- statusline.setup { use_icons = vim.g.have_nerd_font }
+      --
+      --     -- You can configure sections in the statusline by overriding their
+      --     -- default behavior. For example, here we set the section for
+      --     -- cursor location to LINE:COLUMN
+      --     -- @diagnostic disable-next-line: duplicate-set-field
+      --     -- statusline.section_location = function()
+      --     --   return '%2l:%-2v'
+      -- end
+      --
+      --     -- ... and there is more!
+      --     --  Check out: https://github.com/echasnovski/mini.nvim
     end,
   },
   { -- Highlight, edit, and navigate code
@@ -819,10 +870,10 @@ require('lazy').setup({
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
   --
   require 'kickstart.plugins.debug',
-  require 'kickstart.plugins.indent_line',
+  -- require 'kickstart.plugins.indent_line',
   -- require 'kickstart.plugins.lint',
   require 'kickstart.plugins.autopairs',
-  require 'kickstart.plugins.neo-tree',
+  -- require 'kickstart.plugins.neo-tree',
   require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
