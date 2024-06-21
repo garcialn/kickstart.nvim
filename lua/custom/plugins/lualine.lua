@@ -40,7 +40,7 @@ return {
               },
               colored = true,
               sections = { 'added', 'modified', 'removed' },
-              symbols = { added = ' ', modified = ' ', removed = ' ' },
+              symbols = { added = ' ', modified = '󰏬 ', removed = ' ' },
             },
           },
           lualine_c = {

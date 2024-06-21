@@ -3,13 +3,13 @@ return {
     'GCBallesteros/NotebookNavigator.nvim',
     keys = {
       {
-        '<leader>jd',
+        ']j',
         function()
           require('notebook-navigator').move_cell 'd'
         end,
       },
       {
-        '<leader>ju',
+        '[j',
         function()
           require('notebook-navigator').move_cell 'u'
         end,

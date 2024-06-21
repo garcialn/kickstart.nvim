@@ -86,7 +86,7 @@ vim.opt.signcolumn = 'yes'
 --Always keep 8 lines above/below cursor, but star/end of file
 vim.opt.scrolloff = 15
 
-vim.opt.cole = 1
+vim.opt.cole = 2
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
@@ -96,6 +96,10 @@ vim.keymap.set('n', '<M-Down>', '<C-w>-')
 vim.keymap.set('n', '<M-Up>', '<C-w>+')
 vim.keymap.set('n', '<M-Right>', '<C-w>5<')
 vim.keymap.set('n', '<M-Left>', '<C-w>5>')
+
+-- Undotree
+vim.keymap.set('n', '<leader>u', vim.cmd.UndotreeToggle, { desc = 'Toggle Undotree' })
+
 -- Open help window in a vertical split to the right.
 vim.api.nvim_create_autocmd('BufWinEnter', {
   group = vim.api.nvim_create_augroup('help_window_right', {}),
@@ -123,7 +127,7 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 --
 -- NOTE: This won't work in all terminal emulators/tmux/etc. Try your own mapping
 -- or just use <C-\><C-n> to exit terminal mode
-vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
+-- vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
 -- TIP: Disable arrow keys in normal mode
 -- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
@@ -340,7 +344,7 @@ require('lazy').setup({
         -- You can pass additional configuration to Telescope to change the theme, layout, etc.
         builtin.current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
           winblend = 10,
-          previewer = false,
+          previewer = true,
         })
       end, { desc = '[/] Fuzzily search in current buffer' })
 
